@@ -30,82 +30,75 @@ jobs:
         id: generate
         run: |
           echo "🎬 Generating YouTube Live M3U8 Playlist..."
-
+          
           # Check if streams.txt exists
           if [ ! -f "streams.txt" ]; then
             echo "❌ streams.txt not found!"
             exit 1
           fi
-
+          
           # Create playlist file
-          cat > streams.m3u8 << 'EOF'
-#EXTM3U
-#EXT-X-VERSION:3
-# Auto-generated YouTube Live M3U8 Playlist
-# Generated: $(date -u '+%Y-%m-%d %H:%M UTC')
-EOF
-
+          echo "#EXTM3U" > streams.m3u8
+          echo "#EXT-X-VERSION:3" >> streams.m3u8
+          echo "# Auto-generated YouTube Live M3U8 Playlist" >> streams.m3u8
+          echo "# Generated: $(date -u '+%Y-%m-%d %H:%M UTC')" >> streams.m3u8
+          echo "" >> streams.m3u8
+          
           ACTIVE_STREAMS=0
           TOTAL_STREAMS=0
-
+          
           # Read streams.txt
           while IFS= read -r line || [ -n "$line" ]; do
             # Skip comments and empty lines
             [[ "$line" =~ ^#.*$ ]] && continue
             [[ -z "${line// }" ]] && continue
-
+            
             # Extract URL
             url=$(echo "$line" | grep -o 'https\?://[^ ]*' | head -1)
-
+            
             if [ -n "$url" ]; then
               TOTAL_STREAMS=$((TOTAL_STREAMS + 1))
               echo ""
               echo "🔍 Checking: $url"
-
+              
               # Get video info
               if info=$(yt-dlp --socket-timeout 15 -J "$url" 2>/dev/null); then
                 title=$(echo "$info" | jq -r '.title // "Unknown Stream"')
                 channel=$(echo "$info" | jq -r '.channel // "YouTube"')
                 is_live=$(echo "$info" | jq -r '.is_live // false')
                 duration=$(echo "$info" | jq -r '.duration // 0')
-
+                
                 # Check if live (live flag OR duration 0 for 24/7 streams)
                 if [ "$is_live" = "true" ] || [ "$duration" = "null" ] || [ "$duration" = "0" ]; then
                   echo "  ✅ Stream is LIVE!"
                   ACTIVE_STREAMS=$((ACTIVE_STREAMS + 1))
                   channel_id=$(echo "$channel" | tr -d ' ' | tr -cd '[:alnum:]')
                   
-                  # Add to playlist - FIXED INDENTATION
-                  cat >> streams.m3u8 << ENTRY
-
-#EXTINF:-1 tvg-id="${channel_id}.yt" group-title="News",${title} (Live)
-$url
-ENTRY
+                  # Add to playlist - SIMPLE ECHO COMMANDS
+                  echo "" >> streams.m3u8
+                  echo "#EXTINF:-1 tvg-id=\"${channel_id}.yt\" group-title=\"News\",${title} (Live)" >> streams.m3u8
+                  echo "$url" >> streams.m3u8
                 else
                   echo "  ⚠️  Stream is not live"
                   channel_id=$(echo "$channel" | tr -d ' ' | tr -cd '[:alnum:]')
                   
-                  # Add offline entry - FIXED INDENTATION
-                  cat >> streams.m3u8 << OFFLINE
-
-#EXTINF:-1 tvg-id="${channel_id}.yt" group-title="News",${title} (Offline)
-# Stream currently unavailable
-OFFLINE
+                  # Add offline entry
+                  echo "" >> streams.m3u8
+                  echo "#EXTINF:-1 tvg-id=\"${channel_id}.yt\" group-title=\"News\",${title} (Offline)" >> streams.m3u8
+                  echo "# Stream currently unavailable" >> streams.m3u8
                 fi
               else
                 echo "  ❌ Failed to fetch info"
               fi
             fi
           done < streams.txt
-
+          
           # Add summary
-          cat >> streams.m3u8 << SUMMARY
-
-# Total streams: $TOTAL_STREAMS
-# Active live streams: $ACTIVE_STREAMS
-# Last updated: $(date -u '+%Y-%m-%d %H:%M UTC')
-SUMMARY
-
+          echo "" >> streams.m3u8
+          echo "# Total streams: $TOTAL_STREAMS" >> streams.m3u8
+          echo "# Active live streams: $ACTIVE_STREAMS" >> streams.m3u8
+          echo "# Last updated: $(date -u '+%Y-%m-%d %H:%M UTC')" >> streams.m3u8
+          
           echo "active=$ACTIVE_STREAMS" >> $GITHUB_OUTPUT
           echo "total=$TOTAL_STREAMS" >> $GITHUB_OUTPUT
 

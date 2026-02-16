@@ -1,16 +1,49 @@
+name: Update YouTube Live M3U8 Playlist
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'streams.txt'
+      - '.github/workflows/*.yml'
+
+jobs:
+  update-playlist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq ffmpeg
+          pip install --upgrade pip
+          pip install --upgrade yt-dlp
+
+      - name: Debug network
+        run: |
+          echo "🌐 Testing YouTube connection..."
+          curl -I https://www.youtube.com -L --max-time 10
+          echo "🌍 Public IP:"
+          curl -s https://ipinfo.io/ip
+
       - name: Generate M3U8 playlist
         id: generate
         run: |
           echo "🎬 Generating YouTube Live M3U8 Playlist..."
-          echo "📋 yt-dlp version: $(yt-dlp --version)"
-          echo "📋 ffmpeg version: $(ffmpeg -version | head -n1)"
+          echo "yt-dlp version: $(yt-dlp --version)"
           
           if [ ! -f "streams.txt" ]; then
             echo "❌ streams.txt not found!"
             exit 1
           fi
           
-          # Create playlist file
           echo "#EXTM3U" > streams.m3u8
           echo "#EXT-X-VERSION:3" >> streams.m3u8
           echo "# Generated: $(date -u '+%Y-%m-%d %H:%M UTC')" >> streams.m3u8
@@ -30,47 +63,57 @@
               echo ""
               echo "🔍 [$TOTAL_STREAMS] Checking: $url"
               
-              # Create error log file
-              ERROR_LOG=$(mktemp)
+              ERROR_FILE=$(mktemp)
               
-              # Try to get video info with verbose output and geo-bypass
-              if info=$(yt-dlp --verbose --socket-timeout 30 --geo-bypass -J "$url" 2>"$ERROR_LOG"); then
-                echo "  ✅ Successfully fetched info."
-                # ... (rest of your successful processing logic) ...
-                # (Keep your existing code for processing successful fetches here)
+              if info=$(yt-dlp --socket-timeout 30 --geo-bypass -J "$url" 2>"$ERROR_FILE"); then
+                title=$(echo "$info" | jq -r '.title // "Unknown"')
+                channel=$(echo "$info" | jq -r '.channel // "YouTube"')
+                is_live=$(echo "$info" | jq -r '.is_live // false')
+                duration=$(echo "$info" | jq -r '.duration // 0')
                 
-              else
-                echo "  ❌ yt-dlp failed."
-                echo "  🔍 First 15 lines of error log:"
-                head -15 "$ERROR_LOG" | sed 's/^/    /'
-                
-                # Try a fallback: just get the channel's live video URL
-                echo "  🔄 Attempting fallback: Get current live video URL..."
-                live_url=$(yt-dlp --socket-timeout 15 --geo-bypass --get-url -f "best" "$url" 2>/dev/null | head -1)
-                if [ -n "$live_url" ]; then
-                  echo "  ✅ Fallback successful! Got live URL."
+                if [ "$is_live" = "true" ] || [ "$duration" = "null" ] || [ "$duration" = "0" ]; then
+                  echo "  ✅ LIVE: $title"
                   ACTIVE_STREAMS=$((ACTIVE_STREAMS + 1))
-                  channel_name=$(echo "$url" | grep -o '@[^/]*' | tr -d '@' || echo "Channel")
+                  channel_id=$(echo "$channel" | tr -d ' ' | tr -cd '[:alnum:]')
+                  
+                  direct_url=$(yt-dlp --socket-timeout 15 -g -f "best" "$url" 2>/dev/null | head -1)
+                  final_url="${direct_url:-$url}"
+                  
                   echo "" >> streams.m3u8
-                  echo "#EXTINF:-1 tvg-id=\"${channel_name}.yt\" group-title=\"News\",${channel_name} (Live - Fallback)" >> streams.m3u8
-                  echo "$live_url" >> streams.m3u8
+                  echo "#EXTINF:-1 tvg-id=\"${channel_id}.yt\" group-title=\"News\",${title} (Live)" >> streams.m3u8
+                  echo "$final_url" >> streams.m3u8
                 else
-                  echo "  ❌ Fallback also failed."
-                  channel_name=$(echo "$url" | grep -o '@[^/]*' | tr -d '@' || echo "Unknown")
-                  echo "" >> streams.m3u8
-                  echo "#EXTINF:-1 tvg-id=\"${channel_name}.yt\" group-title=\"News\",${channel_name} (Error - check logs)" >> streams.m3u8
-                  echo "# Failed URL: $url" >> streams.m3u8
+                  echo "  ⚠️ OFFLINE: $title"
                 fi
+              else
+                echo "  ❌ FAILED to fetch info"
+                echo "  Error log:"
+                head -5 "$ERROR_FILE" | sed 's/^/    /'
               fi
-              rm -f "$ERROR_LOG"
+              
+              rm -f "$ERROR_FILE"
             fi
           done < streams.txt
           
-          # Add summary
           echo "" >> streams.m3u8
-          echo "# Total streams: $TOTAL_STREAMS" >> streams.m3u8
-          echo "# Active live streams: $ACTIVE_STREAMS" >> streams.m3u8
-          echo "# Last updated: $(date -u '+%Y-%m-%d %H:%M UTC')" >> streams.m3u8
+          echo "# Total: $TOTAL_STREAMS | Live: $ACTIVE_STREAMS" >> streams.m3u8
+          echo "# Updated: $(date -u '+%Y-%m-%d %H:%M UTC')" >> streams.m3u8
           
           echo "active=$ACTIVE_STREAMS" >> $GITHUB_OUTPUT
           echo "total=$TOTAL_STREAMS" >> $GITHUB_OUTPUT
+
+      - name: Commit and push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add streams.m3u8 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "🔄 Update playlists"
+            git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+            echo "✅ Pushed"
+          else
+            echo "ℹ️ No changes"
+          fi

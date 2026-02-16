@@ -1,13 +1,6 @@
-# YouTube Live Stream URLs - Verified Formats
+# YouTube Live Streams - One per line
+# Use channel URLs (without /live) for best results
 
-# Arise News (Channel URL - let yt-dlp find the live stream)
 https://www.youtube.com/@AriseNewsChannel
-
-# Channels TV (Standard channel URL)
 https://www.youtube.com/@channelstv
-
-# News Central TV (Use the channel URL, not /live)
 https://www.youtube.com/@NewsCentralTV
-
-# Alternative: Sometimes the direct watch URL for a specific live video works better
-# https://www.youtube.com/watch?v=QfMk7uBHi9o

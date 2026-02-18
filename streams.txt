@@ -1,22 +1,14 @@
-# YouTube Live Streams - Nigerian News Channels
+# YouTube Live Streams - Using Channel URLs
+# The workflow will automatically get direct stream URLs
 
-# Arise News (Live)
+# Arise News
 https://www.youtube.com/@AriseNewsChannel/live
 
 # Channels TV
-https://www.youtube.com/@channelstv
+https://www.youtube.com/@channelstv/live
 
 # News Central TV
-https://www.youtube.com/@NewsCentralTV
+https://www.youtube.com/@NewsCentralTV/live
 
-# TVC News Nigeria
-https://www.youtube.com/@TVCNewsNigeria
-
-# NTA News
-https://www.youtube.com/@ntanews360
-
-# AIT News
-https://www.youtube.com/@AIT_Online
-
-# PlusTV Africa
-https://www.youtube.com/@PlusTVAfrica
+# Add more channels below
+# https://www.youtube.com/@TVCNewsNigeria/live

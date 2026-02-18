@@ -33,18 +33,29 @@ jobs:
         run: |
           if [ -n "$COOKIES" ]; then
             echo "$COOKIES" > cookies.txt
-            echo "✅ Cookies file created"
+            echo "✅ Cookies file created ($(wc -l < cookies.txt) lines)"
           else
             echo "⚠️ No cookies secret found"
             exit 1
           fi
 
-      - name: Test cookies
+      - name: Diagnose yt-dlp
         run: |
-          echo "🔍 Testing cookies..."
-          ls -la cookies.txt
-          head -1 cookies.txt
-          yt-dlp --cookies cookies.txt --simulate "https://www.youtube.com/@AriseNewsChannel/live" || echo "Test failed"
+          echo "🔍 Running simple test..."
+          
+          # Test 1: Can we access YouTube at all?
+          echo "Test 1: Network connectivity"
+          curl -I https://www.youtube.com -L --max-time 10
+          
+          # Test 2: Try the simplest possible yt-dlp command
+          echo ""
+          echo "Test 2: yt-dlp with cookies"
+          yt-dlp --cookies cookies.txt --dump-json "https://www.youtube.com/@AriseNewsChannel/live" 2>&1 || echo "Command failed"
+          
+          # Test 3: Check cookie format
+          echo ""
+          echo "Test 3: First 5 lines of cookies.txt"
+          head -5 cookies.txt
 
       - name: Generate playlist
         run: |
@@ -55,43 +66,73 @@ jobs:
           TOTAL=0
           ACTIVE=0
 
-          while read line; do
+          while IFS= read -r line || [ -n "$line" ]; do
             [[ "$line" =~ ^#.*$ ]] && continue
-            [[ -z "$line" ]] && continue
+            [[ -z "${line// }" ]] && continue
 
             URL=$(echo "$line" | grep -o 'https\?://[^ ]*' | head -1)
             [ -z "$URL" ] && continue
 
             TOTAL=$((TOTAL + 1))
-            echo "Processing $TOTAL: $URL"
-            NAME=$(echo "$URL" | grep -o '@[^/]*' | tr -d '@' || echo "Channel")
+            echo ""
+            echo "📺 [$TOTAL] Processing: $URL"
+
+            NAME=$(echo "$URL" | grep -o '@[^/]*' | tr -d '@' || echo "Channel $TOTAL")
 
             STREAM_URL=""
+
             if [ -f "cookies.txt" ]; then
+              echo "  🔑 Using cookies..."
+              
               VIDEO_ID=$(yt-dlp --cookies cookies.txt --get-id "$URL" 2>/dev/null)
+              
               if [ -n "$VIDEO_ID" ]; then
+                echo "  ✅ Got video ID: $VIDEO_ID"
+                
                 for fmt in 301 300 best; do
                   STREAM_URL=$(yt-dlp --cookies cookies.txt -f $fmt -g "https://youtube.com/watch?v=$VIDEO_ID" 2>/dev/null | head -1)
-                  [ -n "$STREAM_URL" ] && break
+                  if [ -n "$STREAM_URL" ]; then
+                    echo "    ✅ Got format $fmt"
+                    break
+                  fi
                 done
+              else
+                echo "  ❌ Could not get video ID"
               fi
             fi
 
             if [ -n "$STREAM_URL" ]; then
+              echo "  ✅ Got direct stream URL!"
               ACTIVE=$((ACTIVE + 1))
               echo "" >> streams.m3u8
-              echo "#EXTINF:-1,$NAME" >> streams.m3u8
+              echo "#EXTINF:-1,$NAME (Live)" >> streams.m3u8
               echo "$STREAM_URL" >> streams.m3u8
             else
+              echo "  ⚠️ Using channel URL as fallback"
               echo "" >> streams.m3u8
-              echo "#EXTINF:-1,$NAME (fallback)" >> streams.m3u8
+              echo "#EXTINF:-1,$NAME (via YouTube)" >> streams.m3u8
               echo "$URL" >> streams.m3u8
             fi
+
+            sleep 1
+
           done < streams.txt
 
           echo "" >> streams.m3u8
-          echo "# Summary: $ACTIVE/$TOTAL direct" >> streams.m3u8
+          echo "# Summary: $ACTIVE/$TOTAL direct streams" >> streams.m3u8
+          echo "# Updated: $(date -u)" >> streams.m3u8
+          
           rm -f cookies.txt
+          
+          echo ""
+          echo "📊 Summary: $ACTIVE/$TOTAL streams have direct URLs"
+
+      - name: Show playlist
+        run: |
+          echo ""
+          echo "📄 Generated streams.m3u8:"
+          echo "=========================="
+          head -20 streams.m3u8
 
       - name: Commit and push
         env:
@@ -99,7 +140,15 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
           git add streams.m3u8
-          git diff --staged --quiet || git commit -m "Update playlist"
+          
+          if git diff --staged --quiet; then
+            echo "ℹ️ No changes to commit"
+            exit 0
+          fi
+          
+          git commit -m "🔄 Update playlist [$(date -u +%H:%M)]"
           git pull --rebase origin main || true
-          git push
+          git push origin main
+          echo "✅ Playlist updated and pushed"

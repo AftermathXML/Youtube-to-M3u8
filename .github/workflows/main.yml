@@ -24,6 +24,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for better merge handling
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python & yt-dlp
         run: |
@@ -320,7 +323,15 @@ jobs:
 
           python generate.py
 
-            - name: Cleanup & Commit
+      - name: Show playlist preview
+        run: |
+          echo ""
+          echo "📄 Generated streams.m3u8:"
+          echo "=========================="
+          head -20 streams.m3u8
+          echo "..."
+
+      - name: Commit with conflict resolution
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -331,18 +342,26 @@ jobs:
           sudo wg-quick down /etc/wireguard/wgcf.conf 2>/dev/null || true
           sudo ip link del dev wgcf 2>/dev/null || true
           
+          # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # First, pull latest changes with merge strategy
+          # Stash any local changes (just in case)
+          git stash || true
+          
+          # Pull latest changes with merge strategy
+          echo "📥 Pulling latest changes..."
           git pull --no-rebase origin main || true
+          
+          # Apply stash if any
+          git stash pop || true
           
           # Add the updated playlist
           git add streams.m3u8
           
           # Check if there are changes to commit
           if git diff --cached --quiet; then
-            echo "ℹ️ No changes"
+            echo "ℹ️ No changes to commit"
             exit 0
           fi
           
@@ -350,11 +369,32 @@ jobs:
           ACTIVE_COUNT=$(grep -c 'Live' streams.m3u8 || echo "0")
           git commit -m "🔄 Update playlist [$(date -u +%H:%M)] - ${ACTIVE_COUNT} active"
           
-          # Try to push, but if it fails, pull and retry once
-          if ! git push origin main; then
-            echo "⚠️ Push failed, pulling latest changes and retrying..."
-            git pull --no-rebase origin main
-            git push origin main
-          fi
+          # Try to push with retry logic
+          echo "📤 Pushing changes..."
+          MAX_RETRIES=3
+          RETRY=0
+          
+          while [ $RETRY -lt $MAX_RETRIES ]; do
+            if git push origin main; then
+              echo "✅ Successfully pushed after $((RETRY + 1)) attempt(s)"
+              break
+            else
+              RETRY=$((RETRY + 1))
+              if [ $RETRY -lt $MAX_RETRIES ]; then
+                echo "⚠️ Push failed (attempt $RETRY/$MAX_RETRIES), pulling latest and retrying..."
+                git pull --no-rebase origin main
+              else
+                echo "❌ Failed to push after $MAX_RETRIES attempts"
+                exit 1
+              fi
+            fi
+          done
           
           echo "✅ Playlist updated with Vercel proxy"
+
+      - name: Final status
+        if: always()
+        run: |
+          echo ""
+          echo "🎬 Workflow completed"
+          echo "📊 Check your playlist at: https://raw.githubusercontent.com/uticap/Youtube-to-M3u8/main/streams.m3u8"

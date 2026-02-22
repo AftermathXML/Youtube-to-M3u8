@@ -25,11 +25,11 @@ jobs:
           pip install --upgrade pip yt-dlp
           echo "✅ yt-dlp: $(yt-dlp --version)"
 
-      - name: Setup Cloudflare WARP
+      - name: Setup Cloudflare WARP with retry
         run: |
           echo "🌐 Setting up Cloudflare WARP..."
           
-          # Install wireguard-tools (resolvconf is optional)
+          # Install wireguard-tools
           sudo apt-get update
           sudo apt-get install -y wireguard-tools iptables
           
@@ -38,34 +38,60 @@ jobs:
           chmod +x wgcf
           sudo mv wgcf /usr/local/bin/
           
-          # Register WARP account
-          wgcf register --accept-tos
-          wgcf generate
-          
-          # Fix WireGuard config for GitHub Actions (no IPv6, no DNS)
-          sed -i 's/AllowedIPs = 0.0.0.0\/0,::\/0/AllowedIPs = 0.0.0.0\/0/' wgcf-profile.conf
-          sed -i '/Address = fd/d' wgcf-profile.conf
-          sed -i '/DNS = /d' wgcf-profile.conf
-          
-          # Create manual up/down scripts without resolvconf
-          sudo mkdir -p /etc/wireguard
-          sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
-          
-          # Start WireGuard manually
-          sudo wg-quick up /etc/wireguard/wgcf.conf || {
-            echo "⚠️ wg-quick failed, trying manual wg setup..."
-            sudo ip link add dev wgcf type wireguard
-            sudo ip address add dev wgcf $(grep 'Address = ' wgcf-profile.conf | cut -d= -f2 | tr -d ' ')
-            sudo wg setconf wgcf /etc/wireguard/wgcf.conf
-            sudo ip link set up dev wgcf
-          }
-          
-          # Verify WARP connection
-          echo "🔍 Checking WARP IP..."
-          sleep 5
-          curl -s https://cloudflare.com/cdn-cgi/trace | grep -E "ip|warp"
-          
-          echo "✅ WARP connected"
+          # Retry loop for WARP connection
+          for i in {1..3}; do
+            echo "🔄 Attempt $i to setup WARP..."
+            
+            # Register WARP account
+            wgcf register --accept-tos
+            wgcf generate
+            
+            # Fix WireGuard config for GitHub Actions
+            sed -i 's/AllowedIPs = 0.0.0.0\/0,::\/0/AllowedIPs = 0.0.0.0\/0/' wgcf-profile.conf
+            sed -i '/Address = fd/d' wgcf-profile.conf
+            sed -i '/DNS = /d' wgcf-profile.conf
+            
+            # Setup WireGuard
+            sudo mkdir -p /etc/wireguard
+            sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
+            
+            # Start WireGuard
+            sudo wg-quick up /etc/wireguard/wgcf.conf || {
+              echo "⚠️ wg-quick failed, trying manual setup..."
+              sudo ip link add dev wgcf type wireguard
+              sudo ip address add dev wgcf $(grep 'Address = ' wgcf-profile.conf | cut -d= -f2 | tr -d ' ')
+              sudo wg setconf wgcf /etc/wireguard/wgcf.conf
+              sudo ip link set up dev wgcf
+            }
+            
+            # Wait for connection
+            sleep 5
+            
+            # Verify WARP connection
+            WARP_CHECK=$(curl -s https://cloudflare.com/cdn-cgi/trace)
+            echo "🔍 WARP status:"
+            echo "$WARP_CHECK" | grep -E "ip|warp"
+            
+            if echo "$WARP_CHECK" | grep -q "warp=on"; then
+              echo "✅ WARP connected successfully on attempt $i"
+              
+              # Show current IP and ASN
+              echo "🌐 Current IP: $(curl -s https://ipinfo.io/ip)"
+              echo "🌐 Current ASN: $(curl -s https://ipinfo.io/org)"
+              break
+            fi
+            
+            if [ $i -eq 3 ]; then
+              echo "⚠️ WARP failed after 3 attempts, continuing without it"
+            else
+              echo "⏱️ Waiting 30s before retry..."
+              sleep 30
+              # Cleanup failed attempt
+              sudo wg-quick down /etc/wireguard/wgcf.conf 2>/dev/null || true
+              sudo ip link del dev wgcf 2>/dev/null || true
+              rm -f wgcf-account.toml wgcf-profile.conf
+            fi
+          done
 
       - name: Create cookies file
         env:
@@ -78,7 +104,7 @@ jobs:
           echo "$COOKIES" > cookies.txt
           echo "✅ Cookies loaded ($(wc -l < cookies.txt) lines)"
 
-      - name: Generate playlist
+      - name: Generate playlist with enhanced Python script
         run: |
           cat > generate.py << 'PYTHON_EOF'
           import yt_dlp
@@ -90,73 +116,105 @@ jobs:
           from datetime import datetime, timezone
 
           def get_stream_url(url, cookies_file):
-              ydl_opts_base = {
+              """Enhanced function with better format selection"""
+              ydl_opts = {
                   'cookies': cookies_file,
                   'quiet': True,
                   'no_warnings': True,
                   'socket_timeout': 30,
                   'extract_flat': False,
                   'source_address': '0.0.0.0',
+                  'extractor_args': {'youtube': {'skip': ['dash', 'hls']}},
               }
               
               for attempt in range(5):
+                  # Exponential backoff with jitter
                   delay = min(20 * (2 ** attempt) + random.randint(0, 10), 300)
                   print(f"  ⏱️ Attempt {attempt + 1}/5 - waiting {delay}s...")
                   time.sleep(delay)
                   
                   try:
-                      # Get video info
-                      with yt_dlp.YoutubeDL(ydl_opts_base) as ydl:
+                      # Get video info and check live status
+                      with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                           info = ydl.extract_info(url, download=False)
+                          
                           if not info:
-                              print("  ⚠️ No info returned")
+                              print(f"  ⚠️ No info returned")
                               continue
+                          
+                          # Check if live (handle multiple status formats)
+                          is_live = info.get('is_live', False)
+                          live_status = info.get('live_status', '')
+                          
+                          if not (is_live or live_status == 'is_live' or live_status == 'is_upcoming'):
+                              print(f"  ⚠️ Not currently live (status: {live_status})")
+                              return None, info.get('title', 'Unknown')
                           
                           video_id = info.get('id')
                           if not video_id:
-                              print("  ⚠️ No video ID found")
+                              print(f"  ⚠️ No video ID found")
                               continue
                           
                           print(f"  ✅ Got video ID: {video_id}")
                           
-                          # Check if live
-                          is_live = info.get('is_live') or info.get('live_status') == 'is_live'
-                          if not is_live:
-                              print(f"  ⚠️ Channel is not currently live (status: {info.get('live_status', 'unknown')})")
-                              return None, info.get('title', 'Unknown')
-                          
+                          # Small delay before format request
                           time.sleep(5)
                           
-                          # Get direct stream URL - prioritize m3u8 formats
-                          format_opts = {
-                              **ydl_opts_base,
-                              'format': 'best[height<=1080][protocol*=m3u8]/best[protocol*=m3u8]/best',
-                          }
+                          # Get all formats
+                          formats = info.get('formats', [])
+                          stream_urls = []
                           
-                          with yt_dlp.YoutubeDL(format_opts) as ydl2:
-                              info2 = ydl2.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
-                              if info2 and 'url' in info2:
-                                  return info2['url'], info2.get('title', 'Unknown')
+                          # Priority 1: m3u8 formats (best for live)
+                          for fmt in formats:
+                              protocol = fmt.get('protocol', '')
+                              if protocol in ['m3u8', 'm3u8_native'] and fmt.get('url'):
+                                  stream_urls.append({
+                                      'url': fmt['url'],
+                                      'quality': fmt.get('format_note', 'unknown'),
+                                      'protocol': protocol
+                                  })
+                          
+                          # Priority 2: direct HTTP streams
+                          for fmt in formats:
+                              if fmt.get('url') and fmt.get('protocol') in ['http', 'https']:
+                                  stream_urls.append({
+                                      'url': fmt['url'],
+                                      'quality': fmt.get('format_note', 'unknown'),
+                                      'protocol': fmt.get('protocol')
+                                  })
+                          
+                          if stream_urls:
+                              # Log all found streams
+                              for i, s in enumerate(stream_urls[:3]):  # Show first 3
+                                  print(f"    📊 Found: {s['quality']} ({s['protocol']})")
                               
-                              # Try formats explicitly
-                              formats = info2.get('formats', []) if info2 else []
-                              for fmt in formats:
-                                  if fmt.get('protocol') in ['m3u8', 'm3u8_native', 'http_dash_segments']:
-                                      return fmt['url'], info2.get('title', 'Unknown')
-                              
+                              # Return the best one (first in list)
+                              return stream_urls[0]['url'], info.get('title', 'Unknown')
+                          
+                          # Fallback: try specific format IDs
+                          for fmt_id in ['301', '300', '94', 'best']:
+                              try:
+                                  with yt_dlp.YoutubeDL({**ydl_opts, 'format': fmt_id}) as ydl2:
+                                      info2 = ydl2.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
+                                      if info2 and info2.get('url'):
+                                          print(f"    ✅ Got format {fmt_id}")
+                                          return info2['url'], info.get('title', 'Unknown')
+                              except:
+                                  continue
+                  
                   except Exception as e:
                       error_str = str(e)
-                      print(f"  ❌ Error: {error_str[:150]}")
+                      print(f"  ❌ Attempt {attempt + 1} failed: {error_str[:150]}")
                       
                       if 'rate' in error_str.lower() or '429' in error_str:
-                          print("  ⚠️ Rate limited")
+                          print("  ⚠️ Rate limited - increasing delay")
                       elif 'bot' in error_str.lower() or 'sign in' in error_str.lower():
                           print("  ⚠️ Bot detection triggered!")
                           # Check current IP
                           try:
                               result = subprocess.run(['curl', '-s', 'https://cloudflare.com/cdn-cgi/trace'], 
                                                     capture_output=True, text=True, timeout=10)
-                              print(f"  🔍 IP Info: {result.stdout[:200]}")
+                              print(f"  🔍 IP Info: {result.stdout.strip()}")
                           except:
                               pass
               
@@ -223,6 +281,7 @@ jobs:
                   time.sleep(cooldown)
 
           m3u8.extend([
+              f"",
               f"# Summary: {active}/{total} direct streams active",
               f"# Updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}"
           ])

@@ -4,7 +4,7 @@ run-name: Generate playlist with cookies 🎬
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */3 * * *'  # Run every 3 hours (even less frequent)
+    - cron: '0 */6 * * *'  # Every 6 hours (safer for rate limits)
   push:
     paths:
       - 'streams.txt'
@@ -20,169 +20,146 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install yt-dlp and Deno
+      - name: Setup Python & yt-dlp
         run: |
-          # Update pip and install yt-dlp
-          pip install --upgrade pip
-          pip install --upgrade yt-dlp
-          
-          # Install Deno properly
-          echo "📦 Installing Deno..."
-          curl -fsSL https://deno.land/install.sh | sh
-          
-          # Add Deno to PATH
-          DENO_PATH="/home/runner/.deno/bin"
-          echo "$DENO_PATH" >> $GITHUB_PATH
-          export PATH="$DENO_PATH:$PATH"
-          
-          # Verify installations
-          echo ""
-          echo "✅ yt-dlp version: $(yt-dlp --version)"
-          echo "✅ Deno version: $(deno --version | head -1)"
-          echo "✅ Deno location: $(which deno)"
+          pip install --upgrade pip yt-dlp
+          echo "✅ yt-dlp: $(yt-dlp --version)"
 
       - name: Create cookies file
         env:
           COOKIES: ${{ secrets.COOKIES_TXT }}
         run: |
-          if [ -n "$COOKIES" ]; then
-            echo "$COOKIES" > cookies.txt
-            echo "✅ Cookies file created ($(wc -l < cookies.txt) lines)"
-          else
-            echo "⚠️ No cookies secret found"
+          if [ -z "$COOKIES" ]; then
+            echo "❌ COOKIES_TXT secret is required"
             exit 1
           fi
+          echo "$COOKIES" > cookies.txt
+          echo "✅ Cookies loaded ($(wc -l < cookies.txt) lines)"
 
-      - name: Generate playlist with exponential backoff
+      - name: Generate playlist
         run: |
-          echo "#EXTM3U" > streams.m3u8
-          echo "# Generated: $(date -u)" >> streams.m3u8
-          echo "# Using exponential backoff for rate limit avoidance" >> streams.m3u8
-          echo "" >> streams.m3u8
+          cat > generate.py << 'PYTHON_EOF'
+          import yt_dlp
+          import time
+          import random
+          import re
+          from datetime import datetime, timezone
 
-          TOTAL=0
-          ACTIVE=0
-
-          while IFS= read -r line || [ -n "$line" ]; do
-            [[ "$line" =~ ^#.*$ ]] && continue
-            [[ -z "${line// }" ]] && continue
-
-            URL=$(echo "$line" | grep -o 'https\?://[^ ]*' | head -1)
-            [ -z "$URL" ] && continue
-
-            TOTAL=$((TOTAL + 1))
-            echo ""
-            echo "📺 [$TOTAL] Processing: $URL"
-
-            NAME=$(echo "$URL" | grep -o '@[^/]*' | tr -d '@' || echo "Channel $TOTAL")
-
-            STREAM_URL=""
-            RETRY_COUNT=0
-            MAX_RETRIES=5
-            BASE_DELAY=20  # Start with 20 seconds
-
-            if [ -f "cookies.txt" ]; then
-              echo "  🔑 Using cookies..."
+          def get_stream_url(url, cookies_file):
+              ydl_opts = {
+                  'cookies': cookies_file,
+                  'quiet': True,
+                  'no_warnings': True,
+                  'socket_timeout': 30,
+                  'extract_flat': False,
+              }
               
-              while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ -z "$STREAM_URL" ]; do
-                RETRY_COUNT=$((RETRY_COUNT + 1))
-                
-                # Calculate delay with exponential backoff and jitter
-                DELAY=$((BASE_DELAY * (2 ** (RETRY_COUNT - 1)) + RANDOM % 10))
-                echo "  ⏱️ Attempt $RETRY_COUNT/$MAX_RETRIES - Waiting ${DELAY}s before request..."
-                sleep $DELAY
-                
-                echo "  🔍 Fetching video ID (attempt $RETRY_COUNT)..."
-                
-                # Capture both stdout and stderr
-                VIDEO_ID_OUTPUT=$(yt-dlp --cookies cookies.txt --socket-timeout 30 --get-id "$URL" 2>&1)
-                EXIT_CODE=$?
-                
-                if [ $EXIT_CODE -eq 0 ] && [ -n "$VIDEO_ID_OUTPUT" ]; then
-                  VIDEO_ID="$VIDEO_ID_OUTPUT"
-                  echo "  ✅ Got video ID: $VIDEO_ID"
+              for attempt in range(5):
+                  delay = min(20 * (2 ** attempt) + random.randint(0, 10), 300)
+                  print(f"  ⏱️ Attempt {attempt + 1}/5 - waiting {delay}s...")
+                  time.sleep(delay)
                   
-                  # Small delay before format requests
-                  sleep 5
-                  
-                  # Try formats in order of quality
-                  for fmt in 301 300 best; do
-                    echo "    Trying format $fmt..."
-                    STREAM_URL=$(yt-dlp --cookies cookies.txt --socket-timeout 30 -f $fmt -g "https://youtube.com/watch?v=$VIDEO_ID" 2>/dev/null | head -1)
-                    if [ -n "$STREAM_URL" ]; then
-                      echo "    ✅ Got format $fmt"
-                      break
-                    fi
-                    sleep 3
-                  done
-                else
-                  echo "  ❌ Attempt $RETRY_COUNT failed"
-                  echo "  Error: $(echo "$VIDEO_ID_OUTPUT" | head -1)"
-                  
-                  # Check if it's a rate limit error
-                  if [[ "$VIDEO_ID_OUTPUT" == *"rate-limited"* ]] || [[ "$VIDEO_ID_OUTPUT" == *"429"* ]]; then
-                    echo "  ⚠️ Rate limit detected - will wait longer"
-                    # Increase base delay for next attempt
-                    BASE_DELAY=$((BASE_DELAY + 30))
-                  fi
-                fi
-              done
-            fi
+                  try:
+                      with yt_dlp.YoutubeDL({**ydl_opts, 'get_id': True}) as ydl:
+                          info = ydl.extract_info(url, download=False)
+                          if not info:
+                              continue
+                          
+                          video_id = info.get('id')
+                          if not video_id:
+                              continue
+                          
+                          print(f"  ✅ Got video ID: {video_id}")
+                          time.sleep(5)
+                          
+                          # Get direct URL
+                          with yt_dlp.YoutubeDL({**ydl_opts, 'format': 'best[height<=1080]/best'}) as ydl2:
+                              info2 = ydl2.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
+                              if info2 and 'url' in info2:
+                                  return info2['url'], info2.get('title', 'Unknown')
+                              
+                  except Exception as e:
+                      print(f"  ❌ Error: {str(e)[:100]}")
+                      if 'rate' in str(e).lower() or '429' in str(e):
+                          print("  ⚠️ Rate limited - increasing delay")
+              
+              return None, None
 
-            if [ -n "$STREAM_URL" ]; then
-              echo "  ✅ Got direct stream URL after $RETRY_COUNT attempts!"
-              ACTIVE=$((ACTIVE + 1))
-              echo "" >> streams.m3u8
-              echo "#EXTINF:-1,$NAME (Live)" >> streams.m3u8
-              echo "$STREAM_URL" >> streams.m3u8
-            else
-              echo "  ⚠️ All $MAX_RETRIES attempts failed - using channel URL as fallback"
-              echo "" >> streams.m3u8
-              echo "#EXTINF:-1,$NAME (via YouTube)" >> streams.m3u8
-              echo "$URL" >> streams.m3u8
-            fi
+          # Main
+          with open('streams.txt', 'r') as f:
+              lines = [l.strip() for l in f if l.strip() and not l.startswith('#')]
 
-            # Long cool-down between channels (3 minutes)
-            if [ $TOTAL -lt 3 ]; then
-              COOLDOWN=$((180 + RANDOM % 60))  # 180-240 seconds
-              echo "  ⏱️ Channel cooldown: Waiting ${COOLDOWN}s before next channel..."
-              sleep $COOLDOWN
-            fi
+          m3u8 = ["#EXTM3U", f"# Generated: {datetime.now(timezone.utc).isoformat()}", ""]
 
-          done < streams.txt
+          total = active = 0
 
-          echo "" >> streams.m3u8
-          echo "# Summary: $ACTIVE/$TOTAL direct streams" >> streams.m3u8
-          echo "# Updated: $(date -u)" >> streams.m3u8
-          
-          # Clean up
-          rm -f cookies.txt
-          
-          echo ""
-          echo "📊 FINAL SUMMARY: $ACTIVE/$TOTAL streams have direct URLs"
+          for line in lines:
+              url_match = re.search(r'https?://\S+', line)
+              if not url_match:
+                  continue
+              
+              url = url_match.group()
+              total += 1
+              
+              # Extract name from @handle or use default
+              name_match = re.search(r'@([^/]+)', url)
+              name = name_match.group(1) if name_match else f"Channel {total}"
+              
+              print(f"\n📺 [{total}] Processing: {name}")
+              
+              stream_url, title = get_stream_url(url, 'cookies.txt')
+              
+              if stream_url:
+                  active += 1
+                  print(f"  ✅ Direct stream acquired!")
+                  m3u8.extend([
+                      f"#EXTINF:-1 tvg-name=\"{name}\" group-title=\"YouTube Live\",{name} (Live)",
+                      stream_url,
+                      ""
+                  ])
+              else:
+                  print(f"  ⚠️ Using fallback URL")
+                  m3u8.extend([
+                      f"#EXTINF:-1 tvg-name=\"{name}\" group-title=\"YouTube Live\",{name} (YouTube)",
+                      url,
+                      ""
+                  ])
+              
+              # Cooldown between channels (skip last)
+              if total < len(lines):
+                  cooldown = random.randint(180, 300)
+                  print(f"  ⏱️ Cooldown: {cooldown}s")
+                  time.sleep(cooldown)
 
-      - name: Show playlist
-        run: |
-          echo ""
-          echo "📄 Generated streams.m3u8:"
-          echo "=========================="
-          cat streams.m3u8
+          m3u8.extend([
+              f"# Summary: {active}/{total} direct streams",
+              f"# Updated: {datetime.now(timezone.utc).isoformat()}"
+          ])
 
-      - name: Commit and push
+          with open('streams.m3u8', 'w') as f:
+              f.write('\n'.join(m3u8))
+
+          print(f"\n📊 SUMMARY: {active}/{total} direct streams")
+          PYTHON_EOF
+
+          python generate.py
+
+      - name: Cleanup & Commit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          rm -f cookies.txt generate.py
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           
           git add streams.m3u8
           
-          if git diff --staged --quiet; then
-            echo "ℹ️ No changes to commit"
+          if git diff --cached --quiet; then
+            echo "ℹ️ No changes"
             exit 0
           fi
           
-          git commit -m "🔄 Update playlist [$(date -u +%H:%M)]"
-          git pull --rebase origin main || true
+          git commit -m "🔄 Update playlist [$(date -u +%H:%M)] - $(grep -c '^http' streams.m3u8) streams"
+          git pull --rebase origin main
           git push origin main
-          echo "✅ Playlist updated and pushed"

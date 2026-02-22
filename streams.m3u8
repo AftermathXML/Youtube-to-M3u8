@@ -1,34 +1,34 @@
 #EXTM3U
-# Generated: 2026-02-22 11:50:11 UTC
+# Generated: 2026-02-22 18:02:56 UTC
 # Total channels: 9
 
-#EXTINF:-1 tvg-name="AriseNewsChannel" group-title="YouTube Live" tvg-logo="",AriseNewsChannel (Offline/YouTube)
+#EXTINF:-1 tvg-name="AriseNewsChannel" group-title="YouTube Live",AriseNewsChannel (YouTube)
 https://www.youtube.com/@AriseNewsChannel/live
 
-#EXTINF:-1 tvg-name="channelstv" group-title="YouTube Live" tvg-logo="",channelstv (Offline/YouTube)
+#EXTINF:-1 tvg-name="channelstv" group-title="YouTube Live",channelstv (YouTube)
 https://www.youtube.com/@channelstv/live
 
-#EXTINF:-1 tvg-name="NewsCentralTV" group-title="YouTube Live" tvg-logo="",NewsCentralTV (Offline/YouTube)
+#EXTINF:-1 tvg-name="NewsCentralTV" group-title="YouTube Live",NewsCentralTV (YouTube)
 https://www.youtube.com/@NewsCentralTV/live
 
-#EXTINF:-1 tvg-name="TVCNewsNigeria" group-title="YouTube Live" tvg-logo="",TVCNewsNigeria (Offline/YouTube)
+#EXTINF:-1 tvg-name="TVCNewsNigeria" group-title="YouTube Live",TVCNewsNigeria (YouTube)
 https://www.youtube.com/@TVCNewsNigeria/live
 
-#EXTINF:-1 tvg-name="ntanews360" group-title="YouTube Live" tvg-logo="",ntanews360 (Offline/YouTube)
+#EXTINF:-1 tvg-name="ntanews360" group-title="YouTube Live",ntanews360 (YouTube)
 https://www.youtube.com/@ntanews360/live
 
-#EXTINF:-1 tvg-name="AIT_Online" group-title="YouTube Live" tvg-logo="",AIT_Online (Offline/YouTube)
+#EXTINF:-1 tvg-name="AIT_Online" group-title="YouTube Live",AIT_Online (YouTube)
 https://www.youtube.com/@AIT_Online/live
 
-#EXTINF:-1 tvg-name="PlusTVAfrica" group-title="YouTube Live" tvg-logo="",PlusTVAfrica (Offline/YouTube)
+#EXTINF:-1 tvg-name="PlusTVAfrica" group-title="YouTube Live",PlusTVAfrica (YouTube)
 https://www.youtube.com/@PlusTVAfrica/live
 
-#EXTINF:-1 tvg-name="SoundCityTV" group-title="YouTube Live" tvg-logo="",SoundCityTV (Offline/YouTube)
+#EXTINF:-1 tvg-name="SoundCityTV" group-title="YouTube Live",SoundCityTV (YouTube)
 https://www.youtube.com/@SoundCityTV/live
 
-#EXTINF:-1 tvg-name="WazobiaTV" group-title="YouTube Live" tvg-logo="",WazobiaTV (Offline/YouTube)
+#EXTINF:-1 tvg-name="WazobiaTV" group-title="YouTube Live",WazobiaTV (YouTube)
 https://www.youtube.com/@WazobiaTV/live
 
 
-# Summary: 0/9 direct streams active
-# Updated: 2026-02-22 13:56:16 UTC
+# Summary: 0/9 streams active
+# Updated: 2026-02-22 18:09:47 UTC

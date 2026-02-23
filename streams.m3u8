@@ -1,5 +1,5 @@
 #EXTM3U
-# Generated: 2026-02-23 19:29:12 UTC
+# Generated: 2026-02-23 19:59:44 UTC
 # Total channels: 8
 # Proxy: MediaFlow via ngrok
 
@@ -15,10 +15,10 @@ https://adrian-stannous-isla.ngrok-free.dev/proxy/stream?api_password=your_secur
 https://adrian-stannous-isla.ngrok-free.dev/proxy/stream?api_password=your_secure_password_here&h_referer=https://youtube.com/&d=https://www.youtube.com/watch?v=pn0I0Hxgv3g
 #EXTINF:-1 tvg-name="SilverbirdN24Live" group-title="NIGERIA",SilverbirdN24Live (Live - HD)
 https://adrian-stannous-isla.ngrok-free.dev/proxy/stream?api_password=your_secure_password_here&h_referer=https://youtube.com/&d=https://www.youtube.com/watch?v=FKQV9ArQvaM
-#EXTINF:-1 tvg-name="AITLivestream1" group-title="NIGERIA",AITLivestream1 (Live - HD)
-https://adrian-stannous-isla.ngrok-free.dev/proxy/stream?api_password=your_secure_password_here&h_referer=https://youtube.com/&d=https://www.youtube.com/watch?v=bLbtWylouW4
-#EXTINF:-1 tvg-name="VOP903FM" group-title="NIGERIA",VOP903FM (Live - HD)
-https://adrian-stannous-isla.ngrok-free.dev/proxy/stream?api_password=your_secure_password_here&h_referer=https://youtube.com/&d=https://www.youtube.com/watch?v=YweRzeBKBtA
-# Summary: 8/8 streams active
+#EXTINF:-1 tvg-name="AITLivestream1" group-title="NIGERIA",AITLivestream1 (Error)
+https://www.youtube.com/@AITLivestream1/live
+#EXTINF:-1 tvg-name="VOP903FM" group-title="NIGERIA",VOP903FM (Error)
+https://www.youtube.com/@VOP903FM/live
+# Summary: 6/8 streams active
 # Quality: 1080p:0 720p:0 480p:0
-# Updated: 2026-02-23 19:30:36 UTC
+# Updated: 2026-02-23 20:01:02 UTC

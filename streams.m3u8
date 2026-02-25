@@ -1,38 +1,38 @@
 #EXTM3U
 #EXT-X-VERSION:3
-# Generated: 2026-02-25 02:08:02 UTC
+# Generated: 2026-02-25 07:02:42 UTC
 # Refresh: Every 6 hours via GitHub Actions
 # GitHub Pages: https://uticap.github.io/Youtube-to-M3u8/streams.m3u8
 # Total channels: 12
 
-#EXTINF:-1 tvg-id="4uHZdlX-DT4" tvg-name="AriseNewsChannel" group-title="Nigeria News",AriseNewsChannel [1080p60]
-https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1772006888/ei/iFmeaYWcApnmir4P6MDvSQ/ip/2a09:bac5:6211:3050::4d0:1/id/4uHZdlX-DT4.6/itag/301/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D299/rqh/1/hls_chunk_host/rr16---sn-ojn4v5-5w.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/playlist_duration/30/manifest_duration/30/bui/AVNa5-xx6TmxUqr7ffFTNPsYjVtdFUw8nHIJKBi5Drzcnn4IhnJEeXnV7OXLGazYeXMzBfbwA_7hppJB/spc/6dlaFJworbAtVFfbEjMetSMyEDMDHOkjICMvczufzYtO9VkJmLgxgaRYWnXycRMH/vprv/1/reg/0/playlist_type/DVR/initcwndbps/5606250/met/1771985288,/mh/VX/mm/44/mn/sn-ojn4v5-5w/ms/lva/mv/m/mvi/16/pl/39/rms/lva,lva/dover/11/pacing/0/keepalive/yes/fexp/51552689,51565116,51565682,51580968/mt/1771985069/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,sgoap,sgovp,rqh,xpc,playlist_duration,manifest_duration,bui,spc,vprv,reg,playlist_type/sig/AJEij0EwRQIgdpMIQwPd-eawXFJJns5nKzJY_MKF-PddbDeZkPwQEzcCIQD7zBqvtUe2UNv50uMsXQ2yI-zqnzaPIjdnquXyFd13HQ%3D%3D/lsparams/hls_chunk_host,initcwndbps,met,mh,mm,mn,ms,mv,mvi,pl,rms/lsig/APaTxxMwRQIhANFpmImElg24NY3dpcE1OmxqjDEvgbiNJSVrzy5TAb0iAiA20uJf6yGwpzacz1o9xoro6rHzEK2YkStMHDVtibYVWA%3D%3D/playlist/index.m3u8
-#EXTINF:-1 tvg-id="X_oqLRAdXJc" tvg-name="TVCNewsNigeria" group-title="Nigeria News",TVCNewsNigeria [1080p]
-https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1772006896/ei/kFmeadbeCI6rlu8P8u7e4Qk/ip/2a09:bac5:6211:3050::4d0:1/id/X_oqLRAdXJc.1/itag/96/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D137/rqh/1/hls_chunk_host/rr16---sn-2on4v5-5j.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/playlist_duration/30/manifest_duration/30/ss/1/ssa/1/bui/AVNa5-yHgwL47evFU-jZH333nH3h8YIY9XDpAZpdLyzZPKwSX03vDZ4E4pabm0ZqUJMVmGlaUi_gGNDR/spc/6dlaFKzHml3Yfnuil3azCLL-Pe5xL8KHrlwZN4RZF6olplSFu-robqcEq8QzEDnz/vprv/1/reg/0/playlist_type/DVR/initcwndbps/5685000/met/1771985296,/mh/eR/mm/44/mn/sn-2on4v5-5j/ms/lva/mv/m/mvi/16/pl/39/rms/lva,lva/dover/11/pacing/0/keepalive/yes/fexp/51552689,51565116,51565681,51580968/mt/1771984829/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,sgoap,sgovp,rqh,xpc,playlist_duration,manifest_duration,ss,ssa,bui,spc,vprv,reg,playlist_type/sig/AJEij0EwRQIhAOVopfXSfSbZdzBk7IcwZgNU7V1YaQoNeDqjy-vp2iPUAiALkdLFdCdYXEFWzQq9GgDgwLyGScebiPsTTAKXjUKbGg%3D%3D/lsparams/hls_chunk_host,initcwndbps,met,mh,mm,mn,ms,mv,mvi,pl,rms/lsig/APaTxxMwRAIgErHDdnGu9b_oAmH3WCCCg1PFi5k3hKXsBYlUzNwLhBoCIE_kDfkO6R_v29DR0ASZfB4vksgSntt4065yCkYnH8FJ/playlist/index.m3u8
-#EXTINF:-1 tvg-id="d4zDorDl5UE" tvg-name="ChannelsTelevision" group-title="Nigeria News",ChannelsTelevision [720p]
-https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1772006903/ei/l1meadDFD8jcybgPlrKZoAY/ip/2a09:bac5:6211:3050::4d0:1/id/d4zDorDl5UE.6/itag/95/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D136/rqh/1/hls_chunk_host/rr2---sn-2on4v5-5j.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/playlist_duration/30/manifest_duration/30/ss/1/ssa/1/bui/AVNa5-yArTQSCuDBV0BhV13ojGxBSEEa_6tWHHvlHGnwsNLhdMzyhH06yxikoOKObkRxH3f82CEYq-KE/spc/6dlaFHSsys6MIEo4oaVxxcLgSbKvjp2TmNB_1FKSxY9KbQNDY55zUvtlXYyqm3B6/vprv/1/playlist_type/DVR/initcwndbps/4943750/met/1771985303,/mh/39/mm/44/mn/sn-2on4v5-5j/ms/lva/mv/m/mvi/2/pl/39/rms/lva,lva/dover/11/pacing/0/keepalive/yes/fexp/51552689,51565116,51565682,51580968/mt/1771985069/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,sgoap,sgovp,rqh,xpc,playlist_duration,manifest_duration,ss,ssa,bui,spc,vprv,playlist_type/sig/AJEij0EwRAIgfJAaPP8NEvOpAaCmBxzme88emAvMaMqw8VdDGY34XLUCIBXeI1Qzrku14SiVuWfCiOIxUkzDNKCHc39qCJJRysWW/lsparams/hls_chunk_host,initcwndbps,met,mh,mm,mn,ms,mv,mvi,pl,rms/lsig/APaTxxMwRAIgQVYzf3q0H7wXvi7kMwN8xh_c36krCUjQUKcrZMV3NckCIGs_6Pct874SIl8ikKtqWBYmGUmNlmV3dkBeiJ1clbML/playlist/index.m3u8
-#EXTINF:-1 tvg-id="puZ8rz7_4UY" tvg-name="NewsCentralAfrica" group-title="Nigeria News",NewsCentralAfrica [1080p60]
-https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1772006913/ei/oVmeaaSiGPmJlu8PuaaByAM/ip/2a09:bac5:6211:3050::4d0:1/id/puZ8rz7_4UY.5/itag/301/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D299/rqh/1/hls_chunk_host/rr8---sn-ojn4v5-5w.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/playlist_duration/30/manifest_duration/30/bui/AVNa5-z6UqmmMd7ZA3GkcuYu61_zhtJr_JHe572Mz0LAfGm4VlV8qLkoSfHS-Gl_oTCrPVcO9FJA815T/spc/6dlaFAJjMVWNozzuGOygFGcc7kHd4fG8IlW8wL3_WSxRSI89Gkp9ewqNaTfx0wcz/vprv/1/reg/0/playlist_type/DVR/initcwndbps/5606250/met/1771985313,/mh/s9/mm/44/mn/sn-ojn4v5-5w/ms/lva/mv/m/mvi/8/pl/39/rms/lva,lva/dover/11/pacing/0/keepalive/yes/fexp/51552689,51565116,51565682,51580968/mt/1771985069/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,sgoap,sgovp,rqh,xpc,playlist_duration,manifest_duration,bui,spc,vprv,reg,playlist_type/sig/AJEij0EwRQIgTVh_ILGV2iPGH01P-fScqV8RmNfbiUcU-Li35b8BtpQCIQDSkU2GeGnQ-nMg2jXk6mN3rfyQ3eAjDMFQY6tn0qE0ew%3D%3D/lsparams/hls_chunk_host,initcwndbps,met,mh,mm,mn,ms,mv,mvi,pl,rms/lsig/APaTxxMwRAIgV1iN_8UPyGH7Do3VriuTkbUoCWQW8cdU6uGPBZtoA28CIHXlu1arM9MRK7hEhLTNLK0_hueBtnfBPNwyX8yeZM9b/playlist/index.m3u8
+#EXTINF:-1 tvg-name="AriseNewsChannel" group-title="Nigeria News",AriseNewsChannel [Error]
+https://www.youtube.com/@AriseNewsChannel/live
+#EXTINF:-1 tvg-name="TVCNewsNigeria" group-title="Nigeria News",TVCNewsNigeria [Error]
+https://www.youtube.com/@TVCNewsNigeria/live
+#EXTINF:-1 tvg-name="ChannelsTelevision" group-title="Nigeria News",ChannelsTelevision [Error]
+https://www.youtube.com/@ChannelsTelevision/live
+#EXTINF:-1 tvg-name="NewsCentralAfrica" group-title="Nigeria News",NewsCentralAfrica [Error]
+https://www.youtube.com/@NewsCentralAfrica/live
 #EXTINF:-1 tvg-name="NTALive" group-title="Nigeria News",NTALive [Error]
 https://www.youtube.com/@NTALive/live
-#EXTINF:-1 tvg-id="aTB3fGbj_hw" tvg-name="SilverbirdN24Live" group-title="Nigeria News",SilverbirdN24Live [720p]
-https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1772006924/ei/rFmeabWIKNO0lu8PmMWq6Ak/ip/2a09:bac5:6211:3050::4d0:1/id/aTB3fGbj_hw.1/itag/95/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D136/rqh/1/hls_chunk_host/rr12---sn-2on4v5-5j.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/playlist_duration/30/manifest_duration/30/bui/AVNa5-zszGAtjsmfIbzkYjrdXQekWYrvwTY1FykuslxE2Su4GPgHDSzuMQV1NGmUazq3705YTx45VFlQ/spc/6dlaFMgW3Xjc4uOiVT3cvdohkJxbfzhaqarRicuqpNn1bUuTMmMmfiSr2E7_xihM/vprv/1/reg/0/playlist_type/DVR/initcwndbps/5685000/met/1771985324,/mh/RI/mm/44/mn/sn-2on4v5-5j/ms/lva/mv/m/mvi/12/pl/39/rms/lva,lva/dover/11/pacing/0/keepalive/yes/fexp/51552689,51565116,51565681,51580968/mt/1771984829/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,sgoap,sgovp,rqh,xpc,playlist_duration,manifest_duration,bui,spc,vprv,reg,playlist_type/sig/AJEij0EwRAIgMEzi4BO2dlw8TabIzljbPQS3U6E0nREaFKo8qFsgEDsCIBahZhfulqrwWTRYNZA6m66MRVCGvGMBBoHuN1T1bvpt/lsparams/hls_chunk_host,initcwndbps,met,mh,mm,mn,ms,mv,mvi,pl,rms/lsig/APaTxxMwRQIhAMzN34pCFIiHMP8XDQd3nGuwxZurPiuKCsWwxBhQyywSAiAf3kQIeQHlHq1dicdGAlJ7k0dr-0opOPmgqTrSISU6eQ%3D%3D/playlist/index.m3u8
+#EXTINF:-1 tvg-name="SilverbirdN24Live" group-title="Nigeria News",SilverbirdN24Live [Error]
+https://www.youtube.com/@SilverbirdN24Live/live
 #EXTINF:-1 tvg-name="AITLivestream1" group-title="Nigeria News",AITLivestream1 [Error]
 https://www.youtube.com/@AITLivestream1/live
 #EXTINF:-1 tvg-name="VOP903FM" group-title="Nigeria News",VOP903FM [Error]
 https://www.youtube.com/@VOP903FM/live
-#EXTINF:-1 tvg-id="n4ThGAoXtyE" tvg-name="myjoyonline" group-title="GHANA TV",myjoyonline [1080p]
-https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1772006944/ei/wFmeaYu-DOXdybgPrZinmAQ/ip/2a09:bac5:6211:3050::4d0:1/id/n4ThGAoXtyE.2/itag/96/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D137/rqh/1/hls_chunk_host/rr11---sn-2on4v5-5j.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/playlist_duration/30/manifest_duration/30/ss/1/ssa/1/bui/AVNa5-yn7XK4d1vlN224unOw-szmUtJ8cfHgKPsq0yLn-k1fhk5ghg670-u1ckXrthsAJA77E1ScfB-k/spc/6dlaFMttKiTHtNI0tCK4waZIoXH5w88Dd-MWK4MnFUlXfN_TZvEuWL0BcNgATqB8/vprv/1/playlist_type/DVR/initcwndbps/4943750/met/1771985344,/mh/Nw/mm/44/mn/sn-2on4v5-5j/ms/lva/mv/m/mvi/11/pl/39/rms/lva,lva/dover/11/pacing/0/keepalive/yes/fexp/51552689,51565116,51565681,51580968/mt/1771985069/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,sgoap,sgovp,rqh,xpc,playlist_duration,manifest_duration,ss,ssa,bui,spc,vprv,playlist_type/sig/AJEij0EwRQIhAJNCmxReZphzGPvt9wtC6t3YZGd_J4UUS6Ov0x1QqeHXAiBIK1EKdyRf8GDoPbmQWvgf0OVp9HnSUGPDsLVe6mlDWw%3D%3D/lsparams/hls_chunk_host,initcwndbps,met,mh,mm,mn,ms,mv,mvi,pl,rms/lsig/APaTxxMwRgIhAO_riFYEIepVC-r3reJLfiYvQuFSGD3mFxLK-yJ23iqOAiEAoMIT66WBfVaFh3V6m356Zxlv6BpD5OIZ5BZ7vX4M9NM%3D/playlist/index.m3u8
-#EXTINF:-1 tvg-name="TV3Ghana" group-title="GHANA TV",TV3Ghana [Error]
+#EXTINF:-1 tvg-name="myjoyonline" group-title="Nigeria News",myjoyonline [Error]
+https://www.youtube.com/@myjoyonline/live
+#EXTINF:-1 tvg-name="TV3Ghana" group-title="Nigeria News",TV3Ghana [Error]
 https://www.youtube.com/@TV3Ghana/live
-#EXTINF:-1 tvg-name="parliamentofghana816" group-title="GHANA TV",parliamentofghana816 [Error]
+#EXTINF:-1 tvg-name="parliamentofghana816" group-title="Nigeria News",parliamentofghana816 [Error]
 https://www.youtube.com/@parliamentofghana816/live
-#EXTINF:-1 tvg-id="aUCB1AWfubU" tvg-name="AdomTVGH" group-title="GHANA TV",AdomTVGH [1080p]
-https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1772006966/ei/1lmeacOtI9i4ir4P2bmEoAI/ip/2a09:bac5:6211:3050::4d0:1/id/aUCB1AWfubU.1/itag/96/source/yt_live_broadcast/requiressl/yes/ratebypass/yes/live/1/sgoap/gir%3Dyes%3Bitag%3D140/sgovp/gir%3Dyes%3Bitag%3D137/rqh/1/hls_chunk_host/rr10---sn-ojn4v5-5w.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/playlist_duration/30/manifest_duration/30/bui/AVNa5-w7aFg8GRFzUF6wDakfNtkHmOv1U7yxJYgj53mcsvc3Pd2WEEO4xZ00Lb8sdtfma4rVLVdfjFQg/spc/6dlaFLqGftZvftL-zSiynuVVXLaMK3YnjsKHgk9GWhu4ViASuIVYLIygj0Sz_n5R/vprv/1/playlist_type/DVR/initcwndbps/5606250/met/1771985366,/mh/4u/mm/44/mn/sn-ojn4v5-5w/ms/lva/mv/m/mvi/10/pl/39/rms/lva,lva/dover/11/pacing/0/keepalive/yes/fexp/51552689,51565115,51565682,51580968/mt/1771985069/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,live,sgoap,sgovp,rqh,xpc,playlist_duration,manifest_duration,bui,spc,vprv,playlist_type/sig/AJEij0EwRgIhANQfnZSPZ69cWeeZdAHUEWIWd5bI5QVxn2FjUBAf_jd6AiEAtbL3QiLwWveT4rHu3Qqal9xnZg5nY66Xq9Y8KjfqLlc%3D/lsparams/hls_chunk_host,initcwndbps,met,mh,mm,mn,ms,mv,mvi,pl,rms/lsig/APaTxxMwRgIhAMBBryLEB6s6ucQ-79g-IcI9vdQ8m0s562QE2sGw12s4AiEA3BFiuYS7G9BE62jB2lv74AcxDLdE2Prty62ksu6g6Ko%3D/playlist/index.m3u8
-# Summary: 7/12 streams active
-# Quality: 5x1080p, 2x720p, 0x480p
+#EXTINF:-1 tvg-name="AdomTVGH" group-title="Nigeria News",AdomTVGH [Error]
+https://www.youtube.com/@AdomTVGH/live
+# Summary: 0/12 streams active
+# Quality: 0x1080p, 0x720p, 0x480p
 # Offline: 0
-# Errors: 5
-# Active channels: AriseNewsChannel, TVCNewsNigeria, ChannelsTelevision, NewsCentralAfrica, SilverbirdN24Live, myjoyonline, AdomTVGH
-# Next refresh: 2026-02-25 08:09 UTC
-# Updated: 2026-02-25 02:09:26 UTC
+# Errors: 12
+# Active channels: None
+# Next refresh: 2026-02-25 13:04 UTC
+# Updated: 2026-02-25 07:04:19 UTC

@@ -871,4 +871,34 @@ def main():
     print("\n📺 Generating individual channel playlists...")
     individual_channels = generator.generate_individual_playlists(channels_data)
     
-    generator.save_cache
+    generator.save_cache()
+    
+    print(f"\n{'='*50}")
+    print(f"📊 FINAL STATISTICS:")
+    print(f"   Live: {stats['live']}/{stats['total']}")
+    print(f"   Offline: {stats['offline']}")
+    print(f"   Errors: {stats['error']}")
+    print(f"\n📊 Quality Distribution:")
+    for quality, count in stats['qualities'].items():
+        if count > 0:
+            print(f"   {quality}: {count}")
+    print(f"\n📊 Categories:")
+    for category, count in stats['by_category'].items():
+        print(f"   {category}: {count}")
+    print(f"\n📊 Countries:")
+    for country, count in stats['by_country'].items():
+        print(f"   {country}: {count}")
+    print(f"\n📁 Generated Files:")
+    print("   - streams.m3u8 (Main playlist)")
+    print("   - streams_hd.m3u8 (HD only)")
+    print("   - streams_mobile.m3u8 (Mobile quality)")
+    print("   - streams_audio.m3u8 (Audio only)")
+    print("   - epg.xml (TV Guide)")
+    print("   - stats.json (Detailed statistics)")
+    print(f"   - channels/ (Individual channel files - {len(individual_channels)} files)")
+    print(f"\n🌐 Individual Channels URL:")
+    print(f"   https://uticap.github.io/Youtube-to-M3u8/channels/")
+    print(f"{'='*50}")
+
+if __name__ == "__main__":
+    main()
